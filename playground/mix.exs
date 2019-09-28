@@ -26,6 +26,11 @@ defmodule Pg.MixProject do
       {:httpotion, "~> 3.1.0"},
       {:csv, "~> 2.3"},
       {:nimble_csv, "~> 0.3"},
+      {:earmark, "~> 1.4.1" },
+      {:floki, "~> 0.23.0"},
+      {:fuzzyurl, "~> 0.9.0"},
+      {:jason, "~> 1.1"},
+      {:date_time_parser, "~> 0.2.0"},
     ]
   end
 
