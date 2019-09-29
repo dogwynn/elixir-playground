@@ -1,4 +1,7 @@
 https://nithinbekal.com/posts/elixir-shell-history/
+https://github.com/ferd/erlang-history
+export ERL_AFLAGS="-kernel shell_history enabled"
+
 
 Ubuntu 14.04/16.04/17.04/18.04/19.04 or Debian 7/8/9
 Add Erlang Solutions repo: wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb && sudo dpkg -i erlang-solutions_1.0_all.deb

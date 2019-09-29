@@ -31,6 +31,8 @@ defmodule Pg.MixProject do
       {:fuzzyurl, "~> 0.9.0"},
       {:jason, "~> 1.1"},
       {:date_time_parser, "~> 0.2.0"},
+      {:castore, "~> 0.1.0"},
+      {:mint, "~> 0.4.0"},
     ]
   end
 

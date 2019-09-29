@@ -44,38 +44,60 @@ defmodule Pg do
         body: body,
       } -> {:ok, body}
       %HTTPotion.Response{
-        status_code: 404,
-      } -> {:error, :not_found}
-      %HTTPotion.Response{
         status_code: code,
         body: body,
-      } -> {:error, {:unhandled, code, body}}
+      } -> {:error, {:awesome_data, code, body}}
     end
   end
-  def awesome!() do
-    case awesome() do
-      {:ok, body} -> body
-      {:error, error} -> throw(error)
-    end
-  end
+
   def is_gh?(href) do
     String.match?(href, ~r/github.com/)
   end
-  def awesome_gh do
-    awesome!()
-    |> String.split("\n")
-    |> Earmark.as_html!
-    |> Floki.find("a")
-    |> Floki.attribute("href")
-    |> Enum.filter(&(is_gh?/1))
+
+  def awesome_gh_urls do
+    with {:ok, md} <- awesome(),
+         {:ok, html, []} <- Earmark.as_html(md) do
+      html
+      |> Floki.find("a")
+      |> Floki.attribute("href")
+      |> Enum.filter(&(is_gh?/1))
+    end
   end
-  def to_api(url) do
-    %Fuzzyurl{hostname: name, path: path} = url
-    url
-    |> Map.put(:hostname, "api.#{name}")
-    |> Map.put(:path, "/repos#{path}/commits/master")
-    |> Fuzzyurl.to_string
+
+  def get_gh_fuzzyurl(url) do
+    case gh_url=Fuzzyurl.from_string(url) do
+      %Fuzzyurl{
+        fragment: nil,
+        password: nil,
+        port: nil,
+        query: nil,
+        username: nil,
+        protocol: "https",
+        hostname: "github.com",
+        path: path,
+      } when path != nil ->
+        if (Path.split(path) |> Enum.count) == 3 do
+          {:ok, gh_url}
+        else
+          {:error,
+           {:gh_url,
+            "URL path has more than user and repo: #{url}"}}
+        end
+      _ -> {:error, {:gh_url,
+                    "not a usable GitHub URL: #{url}"}}
+    end
   end
+
+  def to_api(raw_url) do
+    with {:ok, url} <- get_gh_fuzzyurl(raw_url) do
+      {:ok,
+       url
+       |> Map.put(:hostname, "api.#{url.hostname}")
+       |> Map.put(:path, "/repos#{url.path}/commits/master")
+       |> Fuzzyurl.to_string}
+    end
+  end
+
   def get_commit(url) do
     case HTTPotion.get(url, follow_redirects: true, headers: ["User-Agent": "Elixir Awesome Freshness Check"]) do
       %HTTPotion.Response{
@@ -83,12 +105,9 @@ defmodule Pg do
         body: body,
       } -> {:ok, body}
       %HTTPotion.Response{
-        status_code: 404,
-      } -> {:error, :not_found}
-      %HTTPotion.Response{
         status_code: code,
         body: body,
-      } -> {:error, {:unhandled, code, body}}
+      } -> {:error, {:github_commit_data, code, body}}
     end
   end
   def get_commit!(url) do
@@ -97,14 +116,15 @@ defmodule Pg do
       {:error, error} -> throw(error)
     end
   end
+
   def get_date(json) do
     case json do
       %{"commit" => %{"author" => %{"date" => date}}} -> {:ok, date}
       _ -> {:error, "could not find date"}
     end
   end
-  def get_date!(date) do
-    case get_date(date) do
+  def get_date!(json) do
+    case get_date(json) do
       {:ok, date} -> date
       {:error, reason} -> throw(reason)
     end
@@ -122,6 +142,16 @@ defmodule Pg do
       {:error, reason} -> throw(reason)
     end
   end
+
+  def github_last_commit_dt(gh_url) do
+    with {:ok, api_url} <- to_api(gh_url),
+         {:ok, json_str} <- get_commit(api_url),
+         {:ok, json} <- Jason.decode(json_str),
+         {:ok, date_str} <- get_date(json) do
+      get_dt(date_str)
+    end
+  end
+  
   # def awesome_api do
   #   awesome_gh()
   #   |> Enum.map(&Fuzzyurl.from_string)
