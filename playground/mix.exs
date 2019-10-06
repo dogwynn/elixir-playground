@@ -33,6 +33,9 @@ defmodule Pg.MixProject do
       {:date_time_parser, "~> 0.2.0"},
       {:castore, "~> 0.1.0"},
       {:mint, "~> 0.4.0"},
+      {:cowboy, "~> 1.0.0"},
+      {:plug, "~> 1.5"},
+      {:poison, "~> 3.1"},
     ]
   end
 
