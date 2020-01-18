@@ -1,0 +1,3 @@
+%{
+  "expcap": {:hex, :expcap, "0.1.1", "fc14d1ba45b0de25a8db890dfb1f58ac9b86c8fc088ad0dd4a108f90a62f1c80", [:mix], [], "hexpm"},
+}

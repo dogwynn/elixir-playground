@@ -1,11 +1,12 @@
-defmodule Pg.MixProject do
+defmodule EscriptTest.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :playground,
+      app: :escript_test,
       version: "0.1.0",
       elixir: "~> 1.9",
+      escript: escript(),
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -23,21 +24,10 @@ defmodule Pg.MixProject do
     [
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
-      {:httpotion, "~> 3.1.0"},
-      {:csv, "~> 2.3"},
-      {:nimble_csv, "~> 0.3"},
-      {:earmark, "~> 1.4.1" },
-      {:floki, "~> 0.23.0"},
-      {:fuzzyurl, "~> 0.9.0"},
-      {:jason, "~> 1.1"},
-      {:date_time_parser, "~> 0.2.0"},
-      {:castore, "~> 0.1.0"},
-      {:mint, "~> 0.4.0"},
-      {:cowboy, "~> 1.0.0"},
-      {:plug, "~> 1.5"},
-      {:poison, "~> 3.1"},
-      # {:crawly, "~> 0.5.0"},
     ]
   end
 
+  defp escript do
+    [main_module: EscriptTest.CLI]
+  end
 end
