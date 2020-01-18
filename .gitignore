@@ -8,4 +8,7 @@ erl_crash.dump
 *.beam
 /config/*.secret.exs
 
+# Emacs
 *~
+\#*
+.\#*
